@@ -1,0 +1,26 @@
+# Fast build variant — copies the pre-built fat-JAR from target/ instead of
+# running Maven inside Docker.  Use this for rapid iteration during development:
+#
+#   .\mvnw.cmd package -DskipTests   (builds target/*.jar locally, ~10s)
+#   docker build -f Dockerfile.local -t newproject-backend:latest .
+#
+# The production Dockerfile (multi-stage Maven build) stays as-is for CI.
+
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+
+# Install Node.js LTS so the JVM can spawn the postgres-mcp stdio subprocess
+RUN apt-get update -q \
+ && apt-get install -y --no-install-recommends curl ca-certificates \
+ && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+ && apt-get install -y --no-install-recommends nodejs \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
+# Pre-cache the MCP postgres package so the first npx invocation is instant
+RUN npx -y @modelcontextprotocol/server-postgres --help 2>/dev/null || true
+
+COPY target/iam-system-0.0.1-SNAPSHOT.jar app.jar
+
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

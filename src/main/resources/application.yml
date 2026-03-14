@@ -1,0 +1,100 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: iam-system
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/iam_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    show-sql: ${SPRING_JPA_SHOW_SQL:true}
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: false
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+  ai:
+    retry:
+      # Reduce retries for AI calls — embedding failures on the free tier should
+      # fail fast so AdminAgentService's catch block fires quickly (~4s) rather
+      # than hanging for ~60s (5 retries × backoff).
+      max-attempts: 2
+      on-http-codes-3xx: false
+    mcp:
+      client:
+        # MCP client auto-configuration is disabled. AdminAgentService builds
+        # McpSyncClient instances manually and lazily on the first chat() call,
+        # so that the internal SSE server (/mcp/sse) is already reachable when
+        # the connection is attempted.
+        enabled: false
+    vectorstore:
+      pgvector:
+        # HNSW max is 2000 dims in pgvector 0.5.x (ships in pgvector/pgvector:pg15).
+        # We request 1536 truncated dims from the model — well within the limit.
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: ${EMBEDDING_DIMENSIONS:1536}
+        initialize-schema: true
+        table-name: ai_memory_store
+    openai:
+      # --- Chat model (Azure AI Foundry) ---
+      base-url: ${AZURE_AI_FOUNDRY_BASE_URL:https://example.openai.azure.com}
+      api-key: ${AZURE_AI_FOUNDRY_API_KEY:placeholder}
+      chat:
+        options:
+          model: ${AZURE_AI_FOUNDRY_MODEL:Mistral-Large-3}
+      # --- Embedding model (OpenRouter → nvidia/llama-nemotron-embed-vl-1b-v2) ---
+      # The model natively produces 2048-dim vectors but supports output truncation
+      # via the `dimensions` request parameter.  We truncate to 1536 to stay within
+      # pgvector 0.5.x's 2000-dim HNSW index limit.
+      embedding:
+        base-url: ${OPENROUTER_EMBEDDING_BASE_URL:https://openrouter.ai/api}
+        api-key: ${OPENROUTER_API_KEY:placeholder}
+        options:
+          model: ${OPENROUTER_EMBEDDING_MODEL:nvidia/llama-nemotron-embed-vl-1b-v2:free}
+          dimensions: ${EMBEDDING_DIMENSIONS:1536}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:placeholder}
+            client-secret: ${GOOGLE_CLIENT_SECRET:placeholder}
+            scope: profile, email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-name: Google
+
+jwt:
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  expiration: ${JWT_EXPIRATION:86400000}
+  refresh-token:
+    expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000}
+
+# MCP connection URLs consumed by AdminAgentService for lazy client construction.
+# internal.mcp.url : base URL of this app's own MCP SSE server (no /sse suffix).
+# postgres.mcp.url : JDBC URL forwarded to @modelcontextprotocol/server-postgres.
+internal:
+  mcp:
+    url: ${INTERNAL_MCP_URL:http://localhost:8080}
+
+postgres:
+  mcp:
+    url: ${POSTGRES_MCP_URL:postgresql://postgres:postgres@localhost:5433/iam_db}

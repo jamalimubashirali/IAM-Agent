@@ -1,0 +1,90 @@
+services:
+
+  # ── PostgreSQL with pgvector ─────────────────────────────────────────────────
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: iam_postgres
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=iam_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+    networks:
+      - iam-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis (conversation memory) ──────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: iam_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - iam-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Spring Boot backend ───────────────────────────────────────────────────────
+  # NOTE: The postgres-mcp server (@modelcontextprotocol/server-postgres) uses
+  # stdio transport and must therefore run as a *subprocess* of the JVM, not as a
+  # separate container.  Node.js / npx are installed into the backend image via
+  # the Dockerfile so the JVM can spawn `npx -y @modelcontextprotocol/server-postgres`  # directly.  AdminAgentService creates that process lazily on the first chat()
+  # call, after Tomcat is fully up.
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    container_name: iam_backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # ── Database ──────────────────────────────────────────────────────────────
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/iam_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      # ── Redis ─────────────────────────────────────────────────────────────────
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      # ── MCP ───────────────────────────────────────────────────────────────────
+      # Postgres MCP URL: the stdio process runs inside the backend container
+      # and connects to the postgres service on the Docker bridge network.
+      - POSTGRES_MCP_URL=postgresql://postgres:postgres@postgres:5432/iam_db
+      # ── AI / LLM ──────────────────────────────────────────────────────────────
+      # IMPORTANT: Do NOT include /v1 in any base URL — Spring AI M6 appends it automatically.
+      - AZURE_AI_FOUNDRY_BASE_URL=${AZURE_AI_FOUNDRY_BASE_URL:-https://example.openai.azure.com}
+      - AZURE_AI_FOUNDRY_API_KEY=${AZURE_AI_FOUNDRY_API_KEY:-placeholder}
+      - AZURE_AI_FOUNDRY_MODEL=${AZURE_AI_FOUNDRY_MODEL:-gpt-4o}
+      # ── Embeddings (OpenRouter) ────────────────────────────────────────────────
+      # No /v1 suffix — Spring AI M6 OpenAiApi.builder().baseUrl() appends /v1 automatically.
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-placeholder}
+      - OPENROUTER_EMBEDDING_BASE_URL=${OPENROUTER_EMBEDDING_BASE_URL:-https://openrouter.ai/api}
+      # nvidia/llama-nemotron-embed-vl-1b-v2 truncated to 1536 dims (pgvector 0.5.x HNSW limit is 2000)
+      - OPENROUTER_EMBEDDING_MODEL=${OPENROUTER_EMBEDDING_MODEL:-nvidia/llama-nemotron-embed-vl-1b-v2:free}
+      - EMBEDDING_DIMENSIONS=${EMBEDDING_DIMENSIONS:-1536}
+      # ── Security ──────────────────────────────────────────────────────────────
+      - JWT_SECRET=${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+    networks:
+      - iam-network
+
+volumes:
+  postgres_data:
+
+networks:
+  iam-network:
+    driver: bridge
