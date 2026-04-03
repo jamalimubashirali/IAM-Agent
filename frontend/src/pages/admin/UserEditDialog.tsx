@@ -31,15 +31,11 @@ import { type User } from "@/types";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import {
-  UserCircle,
   Mail,
   Phone,
   Activity,
-  Save,
-  X,
   UserCog,
 } from "lucide-react";
-import { motion } from "framer-motion";
 
 const userSchema = z.object({
   email: z.string().email(),
