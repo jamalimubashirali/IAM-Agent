@@ -3,8 +3,7 @@
 @config "../tailwind.config.js";
 
 @layer base {
-  :root,
-  .dark {
+  :root {
     --background: 240 10% 4%;
     --foreground: 0 0% 98%;
 
@@ -14,7 +13,7 @@
     --popover: 240 10% 6%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 270 70% 60%;
+    --primary: 263 90% 60%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 240 10% 12%;
@@ -23,17 +22,17 @@
     --muted: 240 10% 12%;
     --muted-foreground: 240 5% 65%;
 
-    --accent: 270 70% 60%;
+    --accent: 263 90% 60%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 240 10% 15%;
     --input: 240 10% 15%;
-    --ring: 270 70% 60%;
+    --ring: 263 90% 60%;
 
-    --radius: 0.75rem;
+    --radius: 1rem;
   }
 }
 
@@ -42,13 +41,43 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
-    font-family:
-      "Space Grotesk",
-      ui-sans-serif,
-      system-ui,
-      -apple-system,
-      "Segoe UI",
-      sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Space Grotesk", sans-serif;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+  }
+  .glass-input {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all;
+  }
+  .glass-button {
+    @apply bg-white/10 backdrop-blur-md border border-white/10 hover:bg-white/20 transition-all active:scale-95;
+  }
+  .mesh-gradient {
+    background-color: hsla(240, 10%, 4%, 1);
+    background-image:
+      radial-gradient(at 0% 0%, hsla(263, 90%, 60%, 0.15) 0px, transparent 50%),
+      radial-gradient(
+        at 100% 0%,
+        hsla(280, 80%, 50%, 0.1) 0px,
+        transparent 50%
+      ),
+      radial-gradient(at 100% 100%, hsla(240, 10%, 4%, 1) 0px, transparent 50%),
+      radial-gradient(
+        at 0% 100%,
+        hsla(263, 90%, 60%, 0.05) 0px,
+        transparent 50%
+      );
   }
 }

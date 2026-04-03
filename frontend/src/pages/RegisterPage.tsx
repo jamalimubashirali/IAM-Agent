@@ -15,7 +15,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import api from "@/lib/api";
-import { ShieldCheck, ArrowRight, Info } from "lucide-react";
+import {
+  ShieldCheck,
+  ArrowRight,
+  Info,
+  User,
+  Mail,
+  Lock,
+  RefreshCw,
+} from "lucide-react";
+import { motion } from "framer-motion";
 
 import {
   Select,
@@ -62,48 +71,58 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex items-center justify-center relative overflow-hidden py-10">
-      {/* Ambient background glows */}
-      <div className="absolute top-1/4 -right-20 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none" />
-      <div className="absolute bottom-1/4 -left-20 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] mix-blend-screen pointer-events-none" />
-
-      <div className="w-full max-w-[460px] p-4 relative z-10 flex flex-col">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <div className="h-14 w-14 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30 shadow-[0_0_25px_rgba(139,92,246,0.3)] mb-5">
-            <ShieldCheck className="h-8 w-8 text-primary" />
-          </div>
-          <h1 className="text-3xl font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-white to-slate-400">
-            Initialize Access
+    <div className="min-h-screen mesh-gradient text-slate-100 flex items-center justify-center relative overflow-hidden py-10 px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-[480px] relative z-10"
+      >
+        <div className="mb-10 flex flex-col items-center text-center">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, type: "spring" }}
+            className="h-16 w-16 rounded-2xl glass-card flex items-center justify-center border-primary/30 shadow-[0_0_30px_rgba(139,92,246,0.4)] mb-6"
+          >
+            <ShieldCheck className="h-9 w-9 text-primary animate-pulse" />
+          </motion.div>
+          <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
+            Create Identity
           </h1>
-          <p className="text-sm text-muted-foreground mt-2">
-            Create an administrator or user identity profile
+          <p className="text-slate-400 font-medium">
+            Establish your profile within the secure perimeter
           </p>
         </div>
 
-        <Card className="bg-card/40 backdrop-blur-xl border-border/50 shadow-2xl relative overflow-hidden">
-          {/* Subtle top border highlight */}
-          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+        <Card className="glass-card border-white/10 shadow-2xl relative overflow-hidden rounded-3xl">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
 
-          <CardContent className="pt-8">
+          <CardContent className="pt-10 px-8">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
+                className="space-y-5"
               >
                 <FormField
                   control={form.control}
                   name="username"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-slate-300">Username</FormLabel>
+                    <FormItem className="space-y-1.5">
+                      <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
+                        Username
+                      </FormLabel>
                       <FormControl>
-                        <Input
-                          className="bg-background/50 border-border/50 focus-visible:ring-primary/50 h-11"
-                          placeholder="johndoe"
-                          {...field}
-                        />
+                        <div className="relative group">
+                          <Input
+                            className="glass-input h-12 pl-4 bg-white/5 border-white/10 rounded-xl"
+                            placeholder="johndoe_id"
+                            {...field}
+                          />
+                          <User className="absolute right-4 top-3.5 h-4 w-4 text-slate-600 group-focus-within:text-primary transition-colors" />
+                        </div>
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-[10px] font-bold text-destructive" />
                     </FormItem>
                   )}
                 />
@@ -111,40 +130,46 @@ export default function RegisterPage() {
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-slate-300">
+                    <FormItem className="space-y-1.5">
+                      <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
                         Email Address
                       </FormLabel>
                       <FormControl>
-                        <Input
-                          className="bg-background/50 border-border/50 focus-visible:ring-primary/50 h-11"
-                          type="email"
-                          placeholder="john@example.com"
-                          {...field}
-                        />
+                        <div className="relative group">
+                          <Input
+                            className="glass-input h-12 pl-4 bg-white/5 border-white/10 rounded-xl"
+                            type="email"
+                            placeholder="john@safeguard.io"
+                            {...field}
+                          />
+                          <Mail className="absolute right-4 top-3.5 h-4 w-4 text-slate-600 group-focus-within:text-primary transition-colors" />
+                        </div>
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-[10px] font-bold text-destructive" />
                     </FormItem>
                   )}
                 />
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <FormField
                     control={form.control}
                     name="password"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-slate-300">
-                          Password
+                      <FormItem className="space-y-1.5">
+                        <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
+                          Passcode
                         </FormLabel>
                         <FormControl>
-                          <Input
-                            className="bg-background/50 border-border/50 focus-visible:ring-primary/50 h-11"
-                            type="password"
-                            placeholder="••••••••"
-                            {...field}
-                          />
+                          <div className="relative group">
+                            <Input
+                              className="glass-input h-12 pl-4 bg-white/5 border-white/10 rounded-xl"
+                              type="password"
+                              placeholder="••••••••"
+                              {...field}
+                            />
+                            <Lock className="absolute right-4 top-3.5 h-4 w-4 text-slate-600 group-focus-within:text-primary transition-colors" />
+                          </div>
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-[10px] font-bold text-destructive" />
                       </FormItem>
                     )}
                   />
@@ -152,64 +177,98 @@ export default function RegisterPage() {
                     control={form.control}
                     name="role"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-slate-300">
-                          Identity Role
+                      <FormItem className="space-y-1.5">
+                        <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
+                          Access Tier
                         </FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger className="bg-background/50 border-border/50 h-11">
+                            <SelectTrigger className="glass-input h-12 bg-white/5 border-white/10 rounded-xl text-slate-300">
                               <SelectValue placeholder="Select role" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent className="bg-card/90 backdrop-blur-xl border-border/50">
-                            <SelectItem value="user">Standard User</SelectItem>
-                            <SelectItem value="mod">Moderator</SelectItem>
-                            <SelectItem value="admin">System Admin</SelectItem>
+                          <SelectContent className="glass-card border-white/10 text-slate-200">
+                            <SelectItem
+                              value="user"
+                              className="focus:bg-primary/20 focus:text-white"
+                            >
+                              Standard User
+                            </SelectItem>
+                            <SelectItem
+                              value="mod"
+                              className="focus:bg-primary/20 focus:text-white"
+                            >
+                              Moderator
+                            </SelectItem>
+                            <SelectItem
+                              value="admin"
+                              className="focus:bg-primary/20 focus:text-white"
+                            >
+                              System Admin
+                            </SelectItem>
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <FormMessage className="text-[10px] font-bold text-destructive" />
                       </FormItem>
                     )}
                   />
                 </div>
-                <div className="pt-4">
+                <div className="pt-6">
                   <Button
                     type="submit"
-                    className="w-full h-11 font-medium shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] transition-all"
+                    className="w-full h-12 font-bold bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-all rounded-xl cursor-not-allowed disabled:opacity-50"
+                    disabled={form.formState.isSubmitting}
                   >
-                    Establish Identity
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    {form.formState.isSubmitting ? (
+                      <RefreshCw className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <>
+                        Initialize Identity
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </>
+                    )}
                   </Button>
                 </div>
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="flex flex-col border-t border-border/30 p-6 bg-muted/20">
-            <p className="text-sm text-center text-muted-foreground">
-              Already initialized?{" "}
+
+          <CardFooter className="flex flex-col border-t border-white/5 p-8 bg-white/[0.02]">
+            <p className="text-xs text-center text-slate-500 font-medium">
+              Already have an identity?{" "}
               <Link
                 to="/login"
-                className="font-semibold text-primary hover:text-primary/80 transition-colors"
+                className="font-bold text-primary hover:underline transition-all"
               >
                 Return to Login
               </Link>
             </p>
           </CardFooter>
         </Card>
-      </div>
 
-      <div className="fixed bottom-6 right-6 max-w-[300px] bg-primary/10 border border-primary/20 p-4 shadow-lg rounded-xl text-xs text-muted-foreground/80 flex gap-3 z-20 backdrop-blur-md">
-        <Info className="h-5 w-5 text-primary flex-shrink-0" />
-        <p>
-          <strong className="text-slate-300">Developer Note:</strong> The
-          identity role selector is exposed here for demo/testing purposes.
-          Production IAM systems typically assign roles out-of-band.
-        </p>
-      </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="mt-10 p-5 glass-card border-amber-500/20 rounded-2xl flex gap-4"
+        >
+          <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+            <Info className="h-5 w-5 text-amber-500" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-1">
+              Developer Notice
+            </p>
+            <p className="text-xs text-slate-400 leading-relaxed font-medium">
+              Role selection is exposed for demonstration. Use standard IAM
+              protocols in production.
+            </p>
+          </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

@@ -10,10 +10,14 @@ import {
   UserCircle,
   Bot,
   Activity,
+  ChevronRight,
+  Terminal,
+  Cpu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 type AppShellProps = {
   children: ReactNode;
@@ -30,93 +34,131 @@ const AppShell = ({ children }: AppShellProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row relative">
-      {/* Background ambient accents */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0 hidden md:block">
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-primary/10 rounded-full blur-[100px] opacity-50 mix-blend-screen" />
-        <div className="absolute top-1/3 -right-20 w-72 h-72 bg-emerald-500/10 rounded-full blur-[100px] opacity-40 mix-blend-screen" />
+    <div className="min-h-screen bg-[#020203] text-foreground flex flex-col md:flex-row relative selection:bg-primary/30">
+      {/* Dynamic Background System */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] opacity-40 animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[120px] opacity-30" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay" />
       </div>
 
-      {/* Sidebar */}
-      <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-border bg-card/60 backdrop-blur-xl z-10 flex flex-col h-auto md:h-screen sticky top-0 shadow-lg">
-        <div className="p-5 flex items-center justify-between border-b border-border/50">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center border border-primary/30 shadow-[0_0_15px_rgba(139,92,246,0.3)]">
-              <ShieldCheck className="h-5 w-5 text-primary" />
+      {/* Sidebar - The Control Column */}
+      <aside className="w-full md:w-72 border-b md:border-b-0 md:border-r border-white/5 bg-black/40 backdrop-blur-3xl z-20 flex flex-col h-auto md:h-screen sticky top-0 shadow-2xl relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
+
+        <div className="p-8 flex items-center justify-between relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-primary to-purple-600 flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.4)]">
+              <ShieldCheck className="h-5 w-5 text-white" />
             </div>
             <div>
-              <p className="font-semibold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-                Access Studio
+              <p className="font-black text-xl tracking-tighter text-white uppercase italic">
+                Studio<span className="text-primary italic">.</span>IAM
               </p>
+              <div className="flex items-center gap-1.5 opacity-40">
+                <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400">
+                  Node_Active
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
+        <nav className="flex-1 overflow-y-auto pt-4 pb-12 px-4 space-y-1 relative z-10 custom-scrollbar">
+          <div className="px-4 mb-4 text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 italic">
+            Core Terminal
+          </div>
           <NavItem to="/dashboard" icon={Home} label="Overview" />
-          <NavItem to="/profile" icon={UserCircle} label="My Profile" />
+          <NavItem to="/profile" icon={UserCircle} label="Identity Profile" />
 
           {isAdmin && (
-            <div className="mt-8 space-y-1">
-              <div className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">
-                Administration
+            <div className="mt-10 space-y-1">
+              <div className="px-4 mb-4 flex items-center justify-between">
+                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 italic">
+                  Governance
+                </span>
+                <Terminal size={10} className="text-slate-700" />
               </div>
-              <NavItem to="/admin/users" icon={Users} label="User Management" />
+              <NavItem to="/admin/users" icon={Users} label="Entity Registry" />
               <NavItem
                 to="/admin/roles"
                 icon={KeyRound}
-                label="Role Management"
+                label="Security Policies"
               />
-              <NavItem to="/admin/audit" icon={ScrollText} label="Audit Logs" />
+              <NavItem
+                to="/admin/audit"
+                icon={ScrollText}
+                label="Audit Sequence"
+              />
 
-              <div className="mt-6 mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70 flex items-center justify-between">
-                <span>AI Operations</span>
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+              <div className="mt-10 mb-4 px-4 flex items-center justify-between">
+                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 italic">
+                  Intelligence
                 </span>
+                <div className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+                </div>
               </div>
               <NavItem
                 to="/admin/hitl"
                 icon={Activity}
-                label="Pending Actions"
+                label="System Override"
               />
-              <NavItem to="/admin/assistant" icon={Bot} label="AI Assistant" />
+              <NavItem to="/admin/assistant" icon={Bot} label="Neural Proxy" />
             </div>
           )}
         </nav>
 
-        <div className="p-4 border-t border-border/50 bg-card/40 mt-auto">
-          <div className="flex items-center justify-between mb-4 px-2">
-            <div className="flex items-center gap-3 overflow-hidden">
-              <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-primary to-blue-600 flex items-center justify-center text-white font-medium text-sm flex-shrink-0 shadow-[0_0_10px_rgba(139,92,246,0.4)]">
+        <div className="p-6 bg-white/[0.02] border-t border-white/5 mt-auto relative z-10">
+          <div className="flex items-center gap-4 mb-6 px-2 group cursor-pointer">
+            <div className="relative">
+              <div className="h-11 w-11 rounded-2xl bg-gradient-to-tr from-slate-800 to-slate-900 border border-white/10 flex items-center justify-center text-white font-black text-sm shadow-xl group-hover:border-primary/50 transition-colors overflow-hidden">
                 {user?.username?.charAt(0).toUpperCase() || "U"}
+                <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/20 transition-colors" />
               </div>
-              <div className="truncate">
-                <p className="text-sm font-medium text-slate-200 truncate leading-tight">
-                  {user?.username}
-                </p>
-                <p className="text-xs text-muted-foreground truncate leading-tight">
-                  {user?.email}
-                </p>
+              <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-black border border-white/10 flex items-center justify-center">
+                <div className="h-2 w-2 rounded-full bg-emerald-500" />
               </div>
             </div>
+            <div className="truncate flex-1">
+              <p className="text-sm font-black text-white truncate tracking-tight uppercase leading-none mb-1">
+                {user?.username}
+              </p>
+              <p className="text-[10px] text-slate-500 truncate font-bold tracking-tight">
+                {user?.email}
+              </p>
+            </div>
           </div>
+
           <Button
             onClick={handleLogout}
-            variant="outline"
-            className="w-full justify-start text-muted-foreground hover:text-white border-border/50 hover:bg-white/5 transition-all"
+            variant="ghost"
+            className="w-full h-12 justify-center text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-2xl border border-transparent hover:border-red-500/20 transition-all group"
           >
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
+            <LogOut className="h-4 w-4 mr-3 group-hover:-translate-x-1 transition-transform" />
+            Terminate Session
           </Button>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col min-h-screen z-10 w-full">
-        <div className="flex-1 overflow-auto p-4 md:p-8">
-          <div className="max-w-6xl mx-auto w-full h-full">{children}</div>
+      {/* Main Deployment Deck */}
+      <main className="flex-1 flex flex-col min-h-screen z-10 w-full relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 flex items-center gap-6 pointer-events-none opacity-20">
+          <div className="flex flex-col items-end">
+            <span className="text-[8px] font-black uppercase tracking-widest text-slate-500">
+              Kernel_Status
+            </span>
+            <span className="text-[10px] font-mono text-emerald-500">
+              STABLE_V4
+            </span>
+          </div>
+          <Cpu size={24} className="text-slate-600" />
+        </div>
+
+        <div className="flex-1 overflow-auto p-6 md:p-12 custom-scrollbar relative">
+          <div className="max-w-7xl mx-auto w-full h-full">{children}</div>
         </div>
       </main>
     </div>
@@ -134,27 +176,36 @@ const NavItem = ({ to, icon: Icon, label }: NavItemProps) => (
     to={to}
     className={({ isActive }) =>
       cn(
-        "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-all duration-200 group relative",
+        "flex items-center gap-4 rounded-2xl px-4 py-3.5 text-[11px] font-black uppercase tracking-widest transition-all duration-300 group relative overflow-hidden",
         isActive
-          ? "bg-primary/10 text-primary"
-          : "text-muted-foreground hover:bg-white/5 hover:text-slate-200",
+          ? "bg-primary/10 text-white shadow-[0_0_20px_rgba(139,92,246,0.1)] border border-primary/20"
+          : "text-slate-500 hover:text-slate-200 hover:bg-white/[0.04] border border-transparent",
       )
     }
   >
     {({ isActive }) => (
       <>
         {isActive && (
-          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-md shadow-[0_0_8px_rgba(139,92,246,0.8)]" />
+          <motion.div
+            layoutId="sidebar-active"
+            className="absolute left-0 top-3 bottom-3 w-1 bg-primary rounded-r-full shadow-[0_0_10px_rgba(139,92,246,0.8)]"
+          />
         )}
         <Icon
           className={cn(
-            "h-4 w-4",
+            "h-4 w-4 transition-all duration-300",
             isActive
-              ? "text-primary drop-shadow-[0_0_5px_rgba(139,92,246,0.5)] flex-shrink-0"
-              : "text-muted-foreground group-hover:text-slate-300 flex-shrink-0",
+              ? "text-primary scale-110 drop-shadow-[0_0_8px_rgba(139,92,246,0.6)]"
+              : "text-slate-500 group-hover:text-slate-300 group-hover:scale-110",
           )}
         />
-        <span className="truncate">{label}</span>
+        <span className="flex-1">{label}</span>
+        {!isActive && (
+          <ChevronRight
+            size={12}
+            className="opacity-0 -translate-x-2 group-hover:opacity-40 group-hover:translate-x-0 transition-all"
+          />
+        )}
       </>
     )}
   </NavLink>

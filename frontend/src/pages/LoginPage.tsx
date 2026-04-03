@@ -16,7 +16,8 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
-import { ShieldCheck, ArrowRight } from "lucide-react";
+import { ShieldCheck, ArrowRight, Lock } from "lucide-react";
+import { motion } from "framer-motion";
 
 const loginSchema = z.object({
   username: z
@@ -53,48 +54,57 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex items-center justify-center relative overflow-hidden">
-      {/* Ambient background glows */}
-      <div className="absolute top-1/4 -left-20 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-20 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] mix-blend-screen pointer-events-none" />
-
-      <div className="w-full max-w-[420px] p-4 relative z-10 flex flex-col">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <div className="h-14 w-14 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30 shadow-[0_0_25px_rgba(139,92,246,0.3)] mb-5">
-            <ShieldCheck className="h-8 w-8 text-primary" />
-          </div>
-          <h1 className="text-3xl font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-white to-slate-400">
-            Welcome back
+    <div className="min-h-screen mesh-gradient text-slate-100 flex items-center justify-center relative overflow-hidden px-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-[440px] relative z-10"
+      >
+        <div className="mb-10 flex flex-col items-center text-center">
+          <motion.div
+            initial={{ rotate: -10, opacity: 0 }}
+            animate={{ rotate: 0, opacity: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+            className="h-16 w-16 rounded-2xl glass-card flex items-center justify-center border-primary/30 shadow-[0_0_30px_rgba(139,92,246,0.4)] mb-6"
+          >
+            <ShieldCheck className="h-9 w-9 text-primary animate-pulse" />
+          </motion.div>
+          <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
+            Access Studio
           </h1>
-          <p className="text-sm text-muted-foreground mt-2">
-            Enter your credentials to access the studio
+          <p className="text-slate-400 font-medium">
+            Authorized personnel only beyond this point
           </p>
         </div>
 
-        <Card className="bg-card/40 backdrop-blur-xl border-border/50 shadow-2xl relative overflow-hidden">
-          {/* Subtle top border highlight */}
-          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+        <Card className="glass-card border-white/10 shadow-2xl relative overflow-hidden rounded-3xl">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
 
-          <CardContent className="pt-8">
+          <CardContent className="pt-10 px-8">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-5"
+                className="space-y-6"
               >
                 <FormField
                   control={form.control}
                   name="username"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-slate-300">Username</FormLabel>
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 ml-1">
+                        Username
+                      </FormLabel>
                       <FormControl>
-                        <Input
-                          className="bg-background/50 border-border/50 focus-visible:ring-primary/50 h-11"
-                          placeholder="admin"
-                          {...field}
-                        />
+                        <div className="relative group">
+                          <Input
+                            className="glass-input h-12 pl-4 bg-white/5 border-white/10 rounded-xl"
+                            placeholder="janedoe_iam"
+                            {...field}
+                          />
+                        </div>
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-[11px] font-bold text-destructive" />
                     </FormItem>
                   )}
                 />
@@ -102,55 +112,68 @@ export default function LoginPage() {
                   control={form.control}
                   name="password"
                   render={({ field }) => (
-                    <FormItem>
-                      <div className="flex items-center justify-between">
-                        <FormLabel className="text-slate-300">
+                    <FormItem className="space-y-2">
+                      <div className="flex items-center justify-between ml-1">
+                        <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
                           Password
                         </FormLabel>
                         <Link
                           to="#"
-                          className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                          className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-primary-foreground transition-colors"
                         >
-                          Forgot password?
+                          Recover Access
                         </Link>
                       </div>
                       <FormControl>
-                        <Input
-                          className="bg-background/50 border-border/50 focus-visible:ring-primary/50 h-11"
-                          type="password"
-                          placeholder="••••••••"
-                          {...field}
-                        />
+                        <div className="relative group">
+                          <Input
+                            className="glass-input h-12 pl-4 bg-white/5 border-white/10 rounded-xl"
+                            type="password"
+                            placeholder="••••••••"
+                            {...field}
+                          />
+                          <Lock className="absolute right-4 top-3.5 h-4 w-4 text-slate-600 group-focus-within:text-primary transition-colors" />
+                        </div>
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-[11px] font-bold text-destructive" />
                     </FormItem>
                   )}
                 />
-                <div className="pt-2">
+                <div className="pt-4">
                   <Button
                     type="submit"
-                    className="w-full h-11 font-medium shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] transition-all"
+                    className="w-full h-12 font-bold bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-all rounded-xl cursor-pointer"
                   >
-                    Sign In
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    Authenticate
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </div>
               </form>
             </Form>
           </CardContent>
-          <CardFooter className="flex flex-col border-t border-border/30 p-6 bg-muted/20">
-            <p className="text-sm text-center text-muted-foreground">
-              Don't have an account?{" "}
+
+          <CardFooter className="flex flex-col border-t border-white/5 p-8 bg-white/[0.02]">
+            <p className="text-xs text-center text-slate-500 font-medium">
+              New to the perimeter?{" "}
               <Link
                 to="/register"
-                className="font-semibold text-primary hover:text-primary/80 transition-colors"
+                className="font-bold text-primary hover:underline transition-all"
               >
-                Apply for access
+                Apply for Credentials
               </Link>
             </p>
           </CardFooter>
         </Card>
-      </div>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="mt-8 text-center text-[10px] uppercase tracking-[0.4em] text-slate-600 font-black"
+        >
+          Secure Neural Link Established
+        </motion.p>
+      </motion.div>
     </div>
   );
 }

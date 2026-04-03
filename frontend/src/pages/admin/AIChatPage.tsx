@@ -1,6 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { Paperclip, Send } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Paperclip,
+  Send,
+  Bot,
+  Sparkles,
+  Terminal,
+  Activity,
+  AlertCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -177,19 +185,19 @@ function MessageContent({ content }: { content: string }) {
   const blocks = parseContentBlocks(content);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {blocks.map((block, index) => {
         if (block.type === "heading") {
           const size =
             block.level === 1
-              ? "text-lg"
+              ? "text-xl font-black"
               : block.level === 2
-                ? "text-base"
-                : "text-sm";
+                ? "text-lg font-bold"
+                : "text-base font-bold";
           return (
             <div
               key={`${block.type}-${index}`}
-              className={`${size} font-semibold text-slate-100 tracking-tight`}
+              className={`${size} text-white uppercase tracking-tight mt-4 first:mt-0`}
             >
               {block.text}
             </div>
@@ -200,31 +208,33 @@ function MessageContent({ content }: { content: string }) {
           return (
             <ul
               key={`${block.type}-${index}`}
-              className={`${listClass} pl-5 space-y-1 text-[15px] leading-6 text-slate-200`}
+              className={`${listClass} pl-6 space-y-2 text-[15px] leading-relaxed text-slate-300`}
             >
               {block.items.map((item, itemIndex) => (
-                <li key={`${index}-item-${itemIndex}`}>{item}</li>
+                <li key={`${index}-item-${itemIndex}`} className="pl-1">
+                  {item}
+                </li>
               ))}
             </ul>
           );
         }
         if (block.type === "code") {
           return (
-            <pre
-              key={`${block.type}-${index}`}
-              className="rounded-lg border border-white/10 bg-slate-950/80 px-3 py-2 text-[13px] leading-5 text-slate-200 overflow-x-auto"
-            >
-              {block.text}
-            </pre>
+            <div key={`${block.type}-${index}`} className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-xl blur opacity-30" />
+              <pre className="relative rounded-xl border border-white/10 bg-black/60 px-5 py-4 text-[13px] font-mono leading-relaxed text-emerald-400/90 overflow-x-auto custom-scrollbar">
+                {block.text}
+              </pre>
+            </div>
           );
         }
         if (block.type === "spacer") {
-          return <div key={`${block.type}-${index}`} className="h-2" />;
+          return <div key={`${block.type}-${index}`} className="h-4" />;
         }
         return (
           <p
             key={`${block.type}-${index}`}
-            className="text-[15px] leading-7 text-slate-200 whitespace-pre-wrap"
+            className="text-[15px] leading-relaxed text-slate-200/90 whitespace-pre-wrap"
           >
             {block.text}
           </p>
@@ -243,16 +253,16 @@ export default function AIChatPage() {
       id: "welcome",
       role: "ai",
       content:
-        "Hello! I am your AI Admin Assistant. I can help analyze audit logs, manage user roles, and monitor system security. How can I assist you today?",
+        "Greetings, Administrator. Core Intelligence Module initialized. I am your specialized Agentic-IAM assistant, prepared to facilitate secure audit analysis, role governance, and predictive system monitoring. State your objective.",
       displayContent:
-        "Hello! I am your AI Admin Assistant. I can help analyze audit logs, manage user roles, and monitor system security. How can I assist you today?",
+        "Greetings, Administrator. Core Intelligence Module initialized. I am your specialized Agentic-IAM assistant, prepared to facilitate secure audit analysis, role governance, and predictive system monitoring. State your objective.",
       timestamp: now(),
     },
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [streamingMessageId, setStreamingMessageId] = useState<string | null>(
-    null
+    null,
   );
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -287,8 +297,8 @@ export default function AIChatPage() {
                 displayContent: text.slice(0, index),
                 isStreaming: index < text.length,
               }
-            : msg
-        )
+            : msg,
+        ),
       );
       if (index >= text.length) {
         if (streamTimerRef.current) {
@@ -333,7 +343,7 @@ export default function AIChatPage() {
 
       const cleaned = normalizeAiResponse(
         data.response,
-        lastUserMessageRef.current ?? undefined
+        lastUserMessageRef.current ?? undefined,
       );
 
       const aiMsg: Message = {
@@ -351,8 +361,8 @@ export default function AIChatPage() {
       setStreamingMessageId(aiMsg.id);
 
       if (aiMsg.isHitl) {
-        toast.warning("An action has been queued for your approval", {
-          description: "Open Pending Actions to review it.",
+        toast.warning("Strategic Override Queued", {
+          description: "Approval required in Pending Actions.",
           duration: 6000,
         });
       }
@@ -361,113 +371,164 @@ export default function AIChatPage() {
         id: (Date.now() + 2).toString(),
         role: "ai",
         content:
-          "Warning: I encountered an error while processing your request. Please try again or check the backend logs.",
+          "ERR_PROTOCOL_REJECTED: Intelligence interface disrupted. Re-authenticate or audit kernel status.",
         displayContent:
-          "Warning: I encountered an error while processing your request. Please try again or check the backend logs.",
+          "ERR_PROTOCOL_REJECTED: Intelligence interface disrupted. Re-authenticate or audit kernel status.",
         timestamp: now(),
         isError: true,
       };
       setMessages((prev) => [...prev, errMsg]);
-      toast.error("Failed to reach the AI Agent");
+      toast.error("Transmission Interrupted");
     } finally {
       setIsTyping(false);
     }
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)]">
-      <div className="flex flex-wrap items-end justify-between gap-4 mb-4">
+    <div className="flex flex-col h-[calc(100vh-10rem)]">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-100">
-            Admin Assistant
-          </h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Secure, streaming chat for IAM operations and audit insights.
+          <div className="flex items-center gap-3 mb-1">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-[0_0_20px_rgba(139,92,246,0.2)]">
+              <Bot className="h-5 w-5 text-primary" />
+            </div>
+            <h1 className="text-3xl font-black uppercase tracking-tight text-white">
+              Neural Interface
+            </h1>
+          </div>
+          <p className="text-slate-500 font-medium ml-1 flex items-center gap-2">
+            <Sparkles className="h-3 w-3 text-primary animate-pulse" />
+            Active Session:{" "}
+            <span className="font-mono text-primary/80 uppercase tracking-wider">
+              {user?.username ?? "admin"}
+            </span>
           </p>
         </div>
-        <div className="text-xs text-slate-400 border border-white/10 rounded-full px-3 py-1 bg-white/5">
-          Session: {user?.username ?? "admin"}
+
+        <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <Activity className="h-3 w-3 text-primary animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+              Secure Protocol v2.4
+            </span>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <Card className="relative flex-1 flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-slate-950/60 shadow-[0_25px_80px_-40px_rgba(0,0,0,0.8)]">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.12),_transparent_55%)]" />
+      <Card className="flex-1 flex flex-col overflow-hidden glass-card border-white/10 rounded-3xl bg-black/40 shadow-3xl relative">
+        {/* Immersive glow effects */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-primary/5 blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-500/5 blur-[120px] pointer-events-none" />
 
-        <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6">
-          <div className="mx-auto w-full max-w-3xl space-y-6">
-            {messages.map((msg) => {
-              const messageText = msg.displayContent ?? msg.content;
-              return (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                  key={msg.id}
-                  className={`flex gap-3 ${
-                    msg.role === "user" ? "flex-row-reverse" : ""
-                  }`}
-                >
-                  <div
-                    className={`shrink-0 w-9 h-9 rounded-full border flex items-center justify-center text-xs font-semibold ${
-                      msg.role === "user"
-                        ? "bg-slate-800 text-slate-200 border-white/10"
-                        : msg.isError
-                          ? "bg-red-500/15 text-red-300 border-red-500/30"
-                          : msg.isHitl
-                            ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
-                            : "bg-white/10 text-slate-100 border-white/10"
-                    }`}
+        <div className="flex-1 overflow-y-auto px-6 py-10 custom-scrollbar">
+          <div className="max-w-4xl mx-auto space-y-10">
+            <AnimatePresence initial={false}>
+              {messages.map((msg, idx) => {
+                const messageText = msg.displayContent ?? msg.content;
+                const isUser = msg.role === "user";
+                return (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{
+                      duration: 0.3,
+                      delay: idx === messages.length - 1 ? 0 : 0,
+                    }}
+                    key={msg.id}
+                    className={`flex gap-6 ${isUser ? "flex-row-reverse" : "flex-row"}`}
                   >
-                    {msg.role === "user" ? "You" : msg.isError ? "!" : "AI"}
-                  </div>
-
-                  <div
-                    className={`max-w-[80%] rounded-2xl px-5 py-4 shadow-sm ${
-                      msg.role === "user"
-                        ? "bg-slate-800 text-slate-100 border border-white/10 rounded-tr-none"
-                        : msg.isHitl
-                          ? "bg-amber-500/5 text-slate-100 border border-amber-500/20 rounded-tl-none"
-                          : msg.isError
-                            ? "bg-red-500/5 text-slate-100 border border-red-500/20 rounded-tl-none"
-                            : "bg-white/5 text-slate-100 border border-white/10 rounded-tl-none"
-                    }`}
-                  >
-                    {msg.isHitl && (
-                      <div className="text-[10px] uppercase tracking-[0.2em] text-amber-300 mb-2">
-                        Approval Required
-                      </div>
-                    )}
-                    <MessageContent content={messageText} />
                     <div
-                      className={`text-[10px] mt-3 text-slate-400 ${
-                        msg.role === "user" ? "text-right" : "text-left"
+                      className={`shrink-0 w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-500 ${
+                        isUser
+                          ? "bg-primary/10 border-primary/30 text-primary shadow-[0_0_15px_rgba(139,92,246,0.1)]"
+                          : msg.isError
+                            ? "bg-red-500/10 border-red-500/30 text-red-400"
+                            : msg.isHitl
+                              ? "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                              : "bg-white/5 border-white/10 text-white shadow-[0_0_20px_rgba(255,255,255,0.02)]"
                       }`}
                     >
-                      {msg.timestamp}
+                      {isUser ? (
+                        <div className="font-black text-xs">YOU</div>
+                      ) : (
+                        <Bot
+                          size={22}
+                          className={msg.isStreaming ? "animate-pulse" : ""}
+                        />
+                      )}
                     </div>
-                  </div>
-                </motion.div>
-              );
-            })}
 
-            {isTyping && (
+                    <div
+                      className={`flex flex-col space-y-2 max-w-[85%] ${isUser ? "items-end" : "items-start"}`}
+                    >
+                      <div
+                        className={`p-6 rounded-3xl shadow-2xl relative group transition-all duration-300 ${
+                          isUser
+                            ? "bg-primary/10 text-white border border-primary/20 rounded-tr-none"
+                            : msg.isHitl
+                              ? "bg-amber-500/5 text-slate-100 border border-amber-500/20 rounded-tl-none ring-1 ring-amber-500/10"
+                              : msg.isError
+                                ? "bg-red-500/5 text-slate-100 border border-red-500/20 rounded-tl-none ring-1 ring-red-500/10"
+                                : "bg-white/[0.04] text-slate-100 border border-white/10 rounded-tl-none"
+                        }`}
+                      >
+                        {msg.isHitl && (
+                          <div className="flex items-center gap-2 mb-4">
+                            <div className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping" />
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-500">
+                              Security Override Required
+                            </span>
+                          </div>
+                        )}
+
+                        <MessageContent content={messageText} />
+
+                        <div
+                          className={`absolute top-0 ${isUser ? "-right-1" : "-left-1"} w-2 h-4 overflow-hidden`}
+                        >
+                          {/* Bubble tail */}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 px-2">
+                        <span className="text-[9px] font-mono font-bold text-slate-600 uppercase tracking-widest">
+                          {msg.timestamp}
+                        </span>
+                        {msg.isStreaming && (
+                          <div className="flex gap-1">
+                            <span className="w-1 h-1 rounded-full bg-primary/40 animate-bounce" />
+                            <span className="w-1 h-1 rounded-full bg-primary/40 animate-bounce [animation-delay:0.2s]" />
+                            <span className="w-1 h-1 rounded-full bg-primary/40 animate-bounce [animation-delay:0.4s]" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+
+            {isTyping && !streamingMessageId && (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex gap-3"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex gap-6"
               >
-                <div className="shrink-0 w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-xs font-semibold text-slate-100">
-                  AI
+                <div className="shrink-0 w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+                  <Bot size={22} className="text-slate-500 animate-pulse" />
                 </div>
-                <div className="bg-white/5 border border-white/10 rounded-2xl rounded-tl-none px-5 py-4 flex items-center gap-1.5">
+                <div className="bg-white/5 border border-white/10 rounded-3xl rounded-tl-none px-8 py-6 flex items-center gap-3 shadow-xl">
                   {[0, 0.2, 0.4].map((delay, i) => (
                     <motion.div
                       key={i}
-                      animate={{ y: [0, -5, 0] }}
-                      transition={{ duration: 0.6, repeat: Infinity, delay }}
-                      className="w-1.5 h-1.5 bg-slate-300/70 rounded-full"
+                      animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
+                      transition={{ duration: 1, repeat: Infinity, delay }}
+                      className="w-2 h-2 bg-primary/60 rounded-full"
                     />
                   ))}
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 ml-2 italic">
+                    Thinking...
+                  </span>
                 </div>
               </motion.div>
             )}
@@ -475,40 +536,60 @@ export default function AIChatPage() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 bg-slate-950/70 px-4 sm:px-8 py-4">
-          <form
-            onSubmit={handleSendMessage}
-            className="mx-auto flex w-full max-w-3xl items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-2 shadow-inner focus-within:ring-1 focus-within:ring-white/20"
-          >
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="text-slate-400 hover:text-slate-200 rounded-full shrink-0"
-              title="Attach file (coming soon)"
+        <div className="p-8 bg-black/20 border-t border-white/5 backdrop-blur-3xl">
+          <div className="max-w-4xl mx-auto">
+            <form
+              onSubmit={handleSendMessage}
+              className="relative flex items-center group"
             >
-              <Paperclip size={18} />
-            </Button>
-            <Input
-              value={inputValue}
-              onChange={(event) => setInputValue(event.target.value)}
-              placeholder="Ask the AI agent... for example: List all users"
-              className="flex-1 bg-transparent border-none focus-visible:ring-0 shadow-none px-2 h-10 placeholder:text-slate-500"
-              disabled={isTyping}
-            />
-            <Button
-              type="submit"
-              disabled={!inputValue.trim() || isTyping}
-              className="rounded-full w-10 h-10 p-0 shrink-0 bg-white text-slate-950 hover:bg-slate-200"
-            >
-              <Send size={16} className="ml-0.5" />
-            </Button>
-          </form>
-          <div className="text-center mt-3">
-            <span className="text-[10px] text-slate-500">
-              Mutating operations require administrator approval via Pending
-              Actions.
-            </span>
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/40 to-purple-500/40 rounded-[2rem] blur opacity-20 group-focus-within:opacity-40 transition-opacity duration-500" />
+
+              <div className="relative flex-1 flex items-center gap-3 bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all rounded-[1.8rem] px-4 py-2 ring-1 ring-white/5 focus-within:ring-primary/30">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="text-slate-500 hover:text-primary rounded-2xl shrink-0 transition-colors"
+                >
+                  <Paperclip size={20} />
+                </Button>
+
+                <Input
+                  value={inputValue}
+                  onChange={(event) => setInputValue(event.target.value)}
+                  placeholder="Transmit objective command..."
+                  className="flex-1 bg-transparent border-none focus-visible:ring-0 shadow-none px-2 h-12 text-slate-200 placeholder:text-slate-600 font-medium"
+                  disabled={isTyping}
+                />
+
+                <Button
+                  type="submit"
+                  disabled={!inputValue.trim() || isTyping}
+                  className="rounded-2xl w-12 h-12 p-0 shrink-0 bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 transition-transform active:scale-95 disabled:grayscale disabled:opacity-50"
+                >
+                  <Send
+                    size={18}
+                    className="translate-x-0.5 -translate-y-0.5"
+                  />
+                </Button>
+              </div>
+            </form>
+
+            <div className="flex items-center justify-center gap-4 mt-4">
+              <div className="flex items-center gap-2 opacity-40">
+                <Terminal size={10} className="text-slate-400" />
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
+                  Kernel: LLD_IAM_v4
+                </span>
+              </div>
+              <div className="h-1 w-1 rounded-full bg-slate-800" />
+              <div className="flex items-center gap-2 opacity-40">
+                <AlertCircle size={10} className="text-slate-400" />
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
+                  Mutations restricted to admin tier
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </Card>
