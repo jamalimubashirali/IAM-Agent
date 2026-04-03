@@ -21,6 +21,9 @@ public class UserSecurity {
 
         String currentUsername = authentication.getName();
 
+        System.out.println("Current Username: " + currentUsername);
+        System.out.println("User ID: " + userId);
+
         // Assuming principal is UserDetails or String
         // You might need to adjust based on your specific UserDetails implementation
 
