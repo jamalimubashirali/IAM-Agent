@@ -127,6 +127,9 @@ public class CognitiveMemoryService {
                 FilterExpressionBuilder b = new FilterExpressionBuilder();
                 String userIdStr = userId.toString();
 
+                System.out.println("Current Username: " + intentContext);
+                System.out.println("User ID: " + userId);
+
                 // Episodic: user's past actions/events
                 List<Document> episodic = vectorStore.similaritySearch(
                                 SearchRequest.builder()
