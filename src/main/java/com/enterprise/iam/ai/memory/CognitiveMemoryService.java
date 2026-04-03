@@ -152,6 +152,9 @@ public class CognitiveMemoryService {
                                                                 b.eq(META_USER_ID, userIdStr)).build())
                                                 .build());
 
+                System.out.println("Episodic: " + episodic);
+                System.out.println("Semantic: " + semantic);
+
                 log.debug("Retrieved {} episodic + {} semantic memories for user {}",
                                 episodic.size(), semantic.size(), userId);
 
