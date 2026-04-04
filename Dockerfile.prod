@@ -15,11 +15,12 @@ COPY pom.xml mvnw mvnw.cmd ./
 COPY .mvn .mvn
 RUN mvn -B dependency:go-offline -q
 
-# Copy frontend build to backend resources
-COPY --from=frontend-builder /app/frontend/dist /app/src/main/resources/static
-
 # Compile and package
 COPY src ./src
+
+# Copy frontend build to backend resources (AFTER copying src to avoid overwrite)
+COPY --from=frontend-builder /app/frontend/dist /app/src/main/resources/static
+
 RUN mvn -B clean package -DskipTests -q
 
 # ── Stage 3: minimal runtime image ────────────────────────────────────────────
@@ -28,11 +29,11 @@ WORKDIR /app
 
 # Install Node.js LTS (required for MCP)
 RUN apt-get update -q \
- && apt-get install -y --no-install-recommends curl ca-certificates \
- && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
- && apt-get install -y --no-install-recommends nodejs \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Pre-cache the MCP postgres package
 RUN npx -y @modelcontextprotocol/server-postgres --help 2>/dev/null || true
