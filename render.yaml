@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: agentic-iam
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: Dockerfile.prod
+    plan: free
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: SPRING_DATA_REDIS_HOST
+        sync: false
+      - key: SPRING_DATA_REDIS_PORT
+        sync: false
+      - key: SPRING_DATA_REDIS_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: AZURE_AI_FOUNDRY_BASE_URL
+        sync: false
+      - key: AZURE_AI_FOUNDRY_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: POSTGRES_MCP_URL
+        sync: false

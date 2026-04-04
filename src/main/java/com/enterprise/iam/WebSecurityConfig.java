@@ -58,17 +58,22 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Static resources (Frontend)
+                        .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico", "/*.png", "/*.svg")
+                        .permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/test/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/mcp/**").hasRole("ADMIN") // MCP transport is admin-only
-                        .requestMatchers("/api/hitl/stream").permitAll() // SSE: EventSource cannot send auth headers
+                        .requestMatchers("/mcp/**").hasRole("ADMIN")
+                        .requestMatchers("/api/hitl/stream").permitAll()
                         .requestMatchers("/api/actions/**").hasRole("ADMIN")
                         .requestMatchers("/api/roles/**").hasRole("ADMIN")
                         .requestMatchers("/api/audit/**").hasRole("ADMIN")
                         .requestMatchers("/api/dashboard/**").hasRole("ADMIN")
                         .requestMatchers("/api/agent/**").hasRole("ADMIN")
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        // Catch-all for SPA routing (handled by SpaController)
+                        .requestMatchers("/{path:[^\\.]*}").permitAll()
                         .anyRequest().authenticated());
 
         http.authenticationProvider(authenticationProvider());
@@ -81,7 +86,7 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // Frontend URL
+        configuration.setAllowedOriginPatterns(Arrays.asList("*")); // Allow all in production or specify OCI IP
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
