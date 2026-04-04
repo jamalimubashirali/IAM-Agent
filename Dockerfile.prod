@@ -1,29 +1,17 @@
-# ── Stage 1: build the React frontend ──────────────────────────────────────────
-FROM node:20-alpine AS frontend-builder
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm ci --quiet
-COPY frontend/ ./
-RUN npm run build
-
-# ── Stage 2: build the Spring Boot fat-jar ────────────────────────────────────
-FROM maven:3.9-eclipse-temurin-21 AS backend-builder
+# ── Stage 1: build the Spring Boot fat-jar ────────────────────────────────────
+FROM maven:3.9-eclipse-temurin-21 AS builder
 WORKDIR /app
 
-# Download dependencies first
+# Download dependencies first for caching
 COPY pom.xml mvnw mvnw.cmd ./
 COPY .mvn .mvn
 RUN mvn -B dependency:go-offline -q
 
-# Compile and package
+# Copy source and package
 COPY src ./src
-
-# Copy frontend build to backend resources (AFTER copying src to avoid overwrite)
-COPY --from=frontend-builder /app/frontend/dist /app/src/main/resources/static
-
 RUN mvn -B clean package -DskipTests -q
 
-# ── Stage 3: minimal runtime image ────────────────────────────────────────────
+# ── Stage 2: minimal runtime image ────────────────────────────────────────────
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
@@ -38,7 +26,8 @@ RUN apt-get update -q \
 # Pre-cache the MCP postgres package
 RUN npx -y @modelcontextprotocol/server-postgres --help 2>/dev/null || true
 
-COPY --from=backend-builder /app/target/iam-system-0.0.1-SNAPSHOT.jar app.jar
+# Copy the fat JAR
+COPY --from=builder /app/target/iam-system-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
