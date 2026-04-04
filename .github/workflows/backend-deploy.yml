@@ -1,8 +1,10 @@
-name: Deploy to OCI Always Free
+name: Backend Deploy (OCI)
 
 on:
   push:
     branches: [main]
+    paths:
+      - "backend/**"
 
 env:
   REGISTRY: ghcr.io
@@ -29,10 +31,10 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile.prod
+          context: ./backend
+          file: ./backend/Dockerfile.prod
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:backend-latest
 
   deploy:
     needs: build-and-push

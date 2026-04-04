@@ -1,0 +1,17 @@
+name: Frontend CI (Vercel)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Notify Vercel Trigger
+        run: echo "Vercel will build this automatically if configured with Root Directory: frontend"
