@@ -15,8 +15,6 @@ import api from "@/lib/api";
 import { type Role } from "@/types";
 import {
   Plus,
-  Edit3,
-  Shield,
   KeySquare,
   RefreshCw,
   Key,
