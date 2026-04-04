@@ -2,7 +2,7 @@
 
 A robust, full-stack Identity and Access Management system built with **Spring Boot 3** and **React (Vite)**. This application provides secure authentication, role-based access control (RBAC), audit logging, and a modern user interface.
 
-![Tech Stack](https://skillicons.dev/icons?i=java,spring,react,ts,tailwind,postgres,docker)
+![Tech Stack](https://skillicons.dev/icons?i=java,spring,react,ts,tailwind,postgres,docker,redis,springsecurity,jwt,springdatajpa,maven,vite,npm,shadcnui,reactrouterdom)
 
 ## 🚀 Features
 
